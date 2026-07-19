@@ -2,6 +2,7 @@ package com.coding.spring_boot_user_authentication.controller;
 
 import com.coding.spring_boot_user_authentication.dto.request.LoginRequest;
 import com.coding.spring_boot_user_authentication.dto.request.RegisterRequest;
+import com.coding.spring_boot_user_authentication.dto.request.UpdateRequest;
 import com.coding.spring_boot_user_authentication.dto.response.ApiResponse;
 import com.coding.spring_boot_user_authentication.dto.response.LoginResponse;
 import com.coding.spring_boot_user_authentication.dto.response.UserResponse;
@@ -37,7 +38,7 @@ public class AuthController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable Long id, @Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateRequest request) {
         UserResponse response = authService.updateUser(request, id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Updated user successful.", response));
     }

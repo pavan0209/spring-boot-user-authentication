@@ -2,6 +2,7 @@ package com.coding.spring_boot_user_authentication.service;
 
 import com.coding.spring_boot_user_authentication.dto.request.LoginRequest;
 import com.coding.spring_boot_user_authentication.dto.request.RegisterRequest;
+import com.coding.spring_boot_user_authentication.dto.request.UpdateRequest;
 import com.coding.spring_boot_user_authentication.dto.response.LoginResponse;
 import com.coding.spring_boot_user_authentication.dto.response.UserResponse;
 import com.coding.spring_boot_user_authentication.entity.User;
@@ -66,7 +67,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserResponse updateUser(RegisterRequest request, Long id) {
+    public UserResponse updateUser(UpdateRequest request, Long id) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
@@ -75,7 +76,6 @@ public class AuthServiceImpl implements AuthService {
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setPassword(request.getPassword());
 
         User updatedUser = userRepository.save(user);
 
