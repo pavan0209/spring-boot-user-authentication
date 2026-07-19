@@ -7,6 +7,7 @@ import com.coding.spring_boot_user_authentication.dto.response.UserResponse;
 import com.coding.spring_boot_user_authentication.entity.User;
 import com.coding.spring_boot_user_authentication.exception.InvalidCredentialsException;
 import com.coding.spring_boot_user_authentication.exception.UserAlreadyExistsException;
+import com.coding.spring_boot_user_authentication.exception.UserNotFoundException;
 import com.coding.spring_boot_user_authentication.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -61,6 +62,29 @@ public class AuthServiceImpl implements AuthService {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
+                .build();
+    }
+
+    @Override
+    public UserResponse updateUser(RegisterRequest request, Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setPassword(request.getPassword());
+
+        User updatedUser = userRepository.save(user);
+
+        return UserResponse.builder()
+                .id(updatedUser.getId())
+                .firstName(updatedUser.getFirstName())
+                .lastName(updatedUser.getLastName())
+                .email(updatedUser.getEmail())
+                .phoneNumber(updatedUser.getPhoneNumber())
                 .build();
     }
 }

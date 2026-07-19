@@ -10,10 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth/")
@@ -37,5 +34,11 @@ public class AuthController {
     public ResponseEntity<ApiResponse<LoginResponse>> loginUser(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.loginUser(request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Login successful.", response));
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable Long id, @Valid @RequestBody RegisterRequest request) {
+        UserResponse response = authService.updateUser(request, id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Updated user successful.", response));
     }
 }

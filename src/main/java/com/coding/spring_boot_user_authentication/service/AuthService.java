@@ -11,4 +11,6 @@ public interface AuthService {
 
     LoginResponse loginUser(LoginRequest request);
 
+    UserResponse updateUser(RegisterRequest request, Long id);
+
 }
