@@ -10,16 +10,17 @@ import com.coding.spring_boot_user_authentication.exception.InvalidCredentialsEx
 import com.coding.spring_boot_user_authentication.exception.UserAlreadyExistsException;
 import com.coding.spring_boot_user_authentication.exception.UserNotFoundException;
 import com.coding.spring_boot_user_authentication.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
 
-    public AuthServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse registerUser(RegisterRequest request) {
@@ -32,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .phoneNumber(request.getPhoneNumber())
                 .build();
 
@@ -53,8 +54,8 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password."));
 
-        if (!user.getPassword().equals(request.getPassword())) {
-            throw new InvalidCredentialsException("Invalid email or password.");
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new InvalidCredentialsException("Invalid credentials");
         }
 
         return LoginResponse.builder()
