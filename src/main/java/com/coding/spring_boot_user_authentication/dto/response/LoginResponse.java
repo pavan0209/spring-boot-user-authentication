@@ -1,21 +1,15 @@
 package com.coding.spring_boot_user_authentication.dto.response;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+@Builder
 @Getter
 @Setter
-@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class LoginResponse {
 
-    private Long id;
+    private String token;
 
-    private String firstName;
-
-    private String lastName;
-
-    private String email;
-
-    private String phoneNumber;
+    private UserResponse user;
 }
