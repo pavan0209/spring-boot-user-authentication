@@ -28,7 +28,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserResponse>> registerUser(@Valid @RequestBody RegisterRequest request) {
         UserResponse response = authService.registerUser(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(true, "User registered successfully.", response));
+                .body(new ApiResponse<>(true, "Account created successfully.", response));
     }
 
     @PostMapping("/login")
@@ -40,6 +40,12 @@ public class AuthController {
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateRequest request) {
         UserResponse response = authService.updateUser(request, id);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Updated user successful.", response));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Account updated successfully.", response));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<ApiResponse<UserResponse>> deleteUser(@PathVariable Long id) {
+        authService.deleteUser(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Account deleted successfully.", null));
     }
 }
