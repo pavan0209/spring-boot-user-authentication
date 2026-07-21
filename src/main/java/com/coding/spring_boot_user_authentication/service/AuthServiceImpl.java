@@ -10,7 +10,10 @@ import com.coding.spring_boot_user_authentication.exception.InvalidCredentialsEx
 import com.coding.spring_boot_user_authentication.exception.UserAlreadyExistsException;
 import com.coding.spring_boot_user_authentication.exception.UserNotFoundException;
 import com.coding.spring_boot_user_authentication.repository.UserRepository;
+import com.coding.spring_boot_user_authentication.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,10 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtService jwtService;
 
     @Override
     public UserResponse registerUser(RegisterRequest request) {
@@ -51,19 +58,24 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponse loginUser(LoginRequest request) {
 
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password."));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new InvalidCredentialsException("Invalid credentials");
-        }
+        String token = jwtService.generateToken(user.getEmail());
 
         return LoginResponse.builder()
-                .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
+                .token(token)
+                .user(
+                        UserResponse.builder()
+                                .id(user.getId())
+                                .firstName(user.getFirstName())
+                                .lastName(user.getLastName())
+                                .email(user.getEmail())
+                                .phoneNumber(user.getPhoneNumber())
+                                .build()
+                )
                 .build();
     }
 
