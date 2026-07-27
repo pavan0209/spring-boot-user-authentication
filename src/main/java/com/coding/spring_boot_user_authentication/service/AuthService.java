@@ -16,4 +16,6 @@ public interface AuthService {
 
     void deleteUser(Long id);
 
+    UserResponse getProfile(String email);
+
 }

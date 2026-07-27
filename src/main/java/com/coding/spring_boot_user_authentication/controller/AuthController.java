@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -47,5 +48,12 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserResponse>> deleteUser(@PathVariable Long id) {
         authService.deleteUser(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Account deleted successfully.", null));
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<UserResponse>> getProfile(Authentication authentication) {
+
+        UserResponse response = authService.getProfile(authentication.getName());
+        return ResponseEntity.ok(new ApiResponse<>(true, "Profile fetched successfully.", response));
     }
 }

@@ -107,4 +107,19 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.delete(user);
     }
+
+    @Override
+    public UserResponse getProfile(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found."));
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .build();
+    }
 }
