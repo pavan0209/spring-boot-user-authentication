@@ -1,24 +1,30 @@
 # 🔐 Spring Boot: User Authentication
 
-A Spring Boot REST API application that demonstrates **User Registration** and **User Login** using Spring Boot. The project follows a clean layered architecture with DTOs, request validation, exception handling, and MySQL database integration to build a simple authentication system.
+A Spring Boot REST API Application that demonstrates complete **User Authentication** using **JWT (JSON Web Token)** and **Spring Security**. The application follows clean architecture principles with DTOs, request validation, global exception handling, password encryption using BCrypt, and MySQL integration.
+
+This project serves as a solid foundation for building secure authentication systems in enterprise Spring Boot applications.
 
 ---
 
-## ⚙️ What This Covers
+## ✨ Features
 
-✔ User Registration
+✔ User Registration, Login, Update Profile & Delete Profile
 
-✔ User Login
+✔ JWT Token Generation,  Authentication & Authorization
+
+✔ BCrypt Password Encryption
 
 ✔ Request Validation
 
 ✔ Global Exception Handling
 
+✔ Spring Security Integration
+
+✔ Stateless Authentication
+
+✔ Global Exception Handling
+
 ✔ DTO-Based Request & Response
-
-✔ MySQL Database Integration
-
-✔ RESTful API Development
 
 ---
 
@@ -26,34 +32,43 @@ A Spring Boot REST API application that demonstrates **User Registration** and *
 
 | Category | Technologies |
 |----------|--------------|
-| **Backend** | Java 17, Spring Boot, Spring Security |
-| **Database** | MySQL, Spring Data JPA |
+| **Backend** | Java 17, Spring Boot 3, Spring Security |
+| **Authentication** | JWT (JSON Web Token), BCrypt Password Encoder |
+| **Database** | MySQL, Spring Data JPA, Hibernate |
 | **Validation** | Jakarta Bean Validation |
-| **API Testing** | Postman |
 | **Build Tool** | Maven |
+| **API Testing** | Postman |
+| **IDE** | IntelliJ IDEA |
+
+---
+
+## 🔐 Authentication Flow
+
+<p align="center">
+  <img src="authentication_flow.png" alt="Spring Boot JWT Authentication Flow" width="85%">
+</p>
 
 ---
 
 ## 📡 REST API Endpoints
 
-| Method | Endpoint | Description |
-| ------ | -------- | ----------- |
-| POST | `/register` | Register a new user |
-| POST | `/login` | Login with registered credentials |
+| Method | Endpoint | Authentication | Description |
+|---------|----------|---------------|-------------|
+| POST | `/api/auth/register` | ❌ | Register a new user |
+| POST | `/api/auth/login` | ❌ | Login and receive JWT token |
+| GET | `/api/auth/profile` | ✅ Bearer Token | Get logged-in user profile |
+| PUT | `/api/auth/update/{id}` | ✅ Bearer Token | Update user details |
+| DELETE | `/api/auth/delete/{id}` | ✅ Bearer Token | Delete user account |
 
 ---
 
-## 🚀 Authentication Flow
+## 👨‍💻 Author
 
-<p align="center">
-  <img src="authentication_flow.png" alt="Spring Boot User Authentication Flow" width="75%">
-</p>
+**Pavan Sonawane**
 
----
+GitHub: https://github.com/pavan0209
 
-## 🎯 Conclusion
-
-👉 *This repository demonstrates the fundamentals of implementing user registration and login in Spring Boot. It showcases a clean REST API structure with validation, exception handling, and MySQL integration, providing a solid foundation for building more advanced authentication systems such as JWT or OAuth in the future.*
+LinkedIn: https://www.linkedin.com/in/pavansonawane0209
 
 ---
 
