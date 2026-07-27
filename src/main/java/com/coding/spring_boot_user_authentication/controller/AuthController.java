@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,6 +54,9 @@ public class AuthController {
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserResponse>> getProfile(Authentication authentication) {
 
+        if (authentication == null) {
+            throw new BadCredentialsException("Authentication token is missing or invalid.");
+        }
         UserResponse response = authService.getProfile(authentication.getName());
         return ResponseEntity.ok(new ApiResponse<>(true, "Profile fetched successfully.", response));
     }
