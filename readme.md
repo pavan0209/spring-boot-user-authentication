@@ -72,11 +72,11 @@ This project serves as a solid foundation for building secure authentication sys
 
 ---
 
----
-
 ## 🎯 Conclusion
 
 This project showcases my understanding of modern authentication and backend development using Java and Spring Boot. It demonstrates secure API development with JWT, Spring Security, email-based password workflows, validation, exception handling, and clean architecture principles that are commonly used in enterprise applications.
+
+---
 
 ## 👨‍💻 Author
 
