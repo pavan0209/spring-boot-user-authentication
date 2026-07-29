@@ -2,13 +2,17 @@ package com.coding.spring_boot_user_authentication.service;
 
 import com.coding.spring_boot_user_authentication.dto.request.LoginRequest;
 import com.coding.spring_boot_user_authentication.dto.request.RegisterRequest;
+import com.coding.spring_boot_user_authentication.dto.request.SetPasswordRequest;
 import com.coding.spring_boot_user_authentication.dto.request.UpdateRequest;
+import com.coding.spring_boot_user_authentication.dto.response.ApiResponse;
 import com.coding.spring_boot_user_authentication.dto.response.LoginResponse;
 import com.coding.spring_boot_user_authentication.dto.response.UserResponse;
 
 public interface AuthService {
 
-    UserResponse registerUser(RegisterRequest request);
+    ApiResponse<Void> registerUser(RegisterRequest request);
+
+    ApiResponse<Void> setPassword(SetPasswordRequest request);
 
     LoginResponse loginUser(LoginRequest request);
 

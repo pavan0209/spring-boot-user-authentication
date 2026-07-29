@@ -1,5 +1,6 @@
 package com.coding.spring_boot_user_authentication.security;
 
+import com.coding.spring_boot_user_authentication.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -66,5 +67,29 @@ public class JwtService {
     private Key getSigningKey() {
         byte[] key = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(key);
+    }
+
+    public String generatePasswordSetupToken(User user) {
+        return Jwts.builder()
+                .subject(user.getEmail())
+                .claim("type", "PASSWORD_SETUP")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    public String extractEmail(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public boolean validatePasswordSetupToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            String type = claims.get("type", String.class);
+            return "PASSWORD_SETUP".equals(type) && !isTokenExpired(token);
+        } catch (Exception ex) {
+            return false;
+        }
     }
 }

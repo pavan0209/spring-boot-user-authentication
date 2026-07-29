@@ -2,20 +2,28 @@ package com.coding.spring_boot_user_authentication.service;
 
 import com.coding.spring_boot_user_authentication.dto.request.LoginRequest;
 import com.coding.spring_boot_user_authentication.dto.request.RegisterRequest;
+import com.coding.spring_boot_user_authentication.dto.request.SetPasswordRequest;
 import com.coding.spring_boot_user_authentication.dto.request.UpdateRequest;
+import com.coding.spring_boot_user_authentication.dto.response.ApiResponse;
 import com.coding.spring_boot_user_authentication.dto.response.LoginResponse;
 import com.coding.spring_boot_user_authentication.dto.response.UserResponse;
 import com.coding.spring_boot_user_authentication.entity.User;
+import com.coding.spring_boot_user_authentication.entity.VerificationToken;
 import com.coding.spring_boot_user_authentication.exception.InvalidCredentialsException;
 import com.coding.spring_boot_user_authentication.exception.UserAlreadyExistsException;
 import com.coding.spring_boot_user_authentication.exception.UserNotFoundException;
 import com.coding.spring_boot_user_authentication.repository.UserRepository;
+import com.coding.spring_boot_user_authentication.repository.VerificationTokenRepository;
 import com.coding.spring_boot_user_authentication.security.JwtService;
+import com.coding.spring_boot_user_authentication.security.TokenType;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -29,30 +37,73 @@ public class AuthServiceImpl implements AuthService {
 
     private final JwtService jwtService;
 
+    private final VerificationTokenRepository verificationTokenRepository;
+
+    private final EmailService emailService;
+
     @Override
-    public UserResponse registerUser(RegisterRequest request) {
+    @Transactional
+    public ApiResponse<Void> registerUser(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new UserAlreadyExistsException("Email already registered.");
+            throw new UserAlreadyExistsException("User already exists.");
         }
 
         User user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
                 .phoneNumber(request.getPhoneNumber())
+                .password(null)
+                .enabled(false)
                 .build();
 
-        User savedUser = userRepository.save(user);
+        user = userRepository.save(user);
+        String token = jwtService.generatePasswordSetupToken(user);
 
-        return UserResponse.builder()
-                .id(savedUser.getId())
-                .firstName(savedUser.getFirstName())
-                .lastName(savedUser.getLastName())
-                .email(savedUser.getEmail())
-                .phoneNumber(savedUser.getPhoneNumber())
+        VerificationToken verificationToken = VerificationToken.builder()
+                .token(token)
+                .type(TokenType.PASSWORD_SETUP)
+                .expiryDate(LocalDateTime.now().plusMinutes(30))
+                .used(false)
+                .user(user)
                 .build();
+
+        verificationTokenRepository.save(verificationToken);
+        emailService.sendSetPasswordEmail(user.getEmail(), user.getFirstName(), token);
+
+        return new ApiResponse<>(true, "Registration successful. Please check your email to set your password.", null);
+    }
+
+    @Override
+    @Transactional
+    public ApiResponse<Void> setPassword(SetPasswordRequest request) {
+
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(request.getToken())
+                .orElseThrow(() -> new RuntimeException("Invalid verification token."));
+
+        if (verificationToken.getUsed()) {
+            throw new RuntimeException("This link has already been used.");
+        }
+
+        if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Verification link has expired.");
+        }
+
+        if (!jwtService.validatePasswordSetupToken(request.getToken())) {
+            throw new RuntimeException("Invalid token.");
+        }
+
+        User user = verificationToken.getUser();
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEnabled(true);
+
+        userRepository.save(user);
+
+        verificationToken.setUsed(true);
+        verificationTokenRepository.save(verificationToken);
+
+        return new ApiResponse<>(true, "Password created successfully.", null);
     }
 
     @Override
@@ -68,12 +119,12 @@ public class AuthServiceImpl implements AuthService {
         return LoginResponse.builder()
                 .token(token)
                 .user(UserResponse.builder()
-                    .id(user.getId())
-                    .firstName(user.getFirstName())
-                    .lastName(user.getLastName())
-                    .email(user.getEmail())
-                    .phoneNumber(user.getPhoneNumber())
-                    .build())
+                        .id(user.getId())
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .build())
                 .build();
     }
 
