@@ -14,7 +14,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -33,8 +34,12 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(nullable = false)
+    @Column
     private String password;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean enabled = false;
 
     @Column(nullable = false, length = 15)
     private String phoneNumber;

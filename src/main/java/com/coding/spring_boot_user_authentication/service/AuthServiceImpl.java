@@ -2,6 +2,7 @@ package com.coding.spring_boot_user_authentication.service;
 
 import com.coding.spring_boot_user_authentication.dto.request.LoginRequest;
 import com.coding.spring_boot_user_authentication.dto.request.RegisterRequest;
+import com.coding.spring_boot_user_authentication.dto.request.SetPasswordRequest;
 import com.coding.spring_boot_user_authentication.dto.request.UpdateRequest;
 import com.coding.spring_boot_user_authentication.dto.response.ApiResponse;
 import com.coding.spring_boot_user_authentication.dto.response.LoginResponse;
@@ -22,6 +23,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -33,6 +36,10 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
 
     private final JwtService jwtService;
+
+    private final VerificationTokenRepository verificationTokenRepository;
+
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -69,6 +76,37 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
+    public ApiResponse<Void> setPassword(SetPasswordRequest request) {
+
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(request.getToken())
+                .orElseThrow(() -> new RuntimeException("Invalid verification token."));
+
+        if (verificationToken.getUsed()) {
+            throw new RuntimeException("This link has already been used.");
+        }
+
+        if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Verification link has expired.");
+        }
+
+        if (!jwtService.validatePasswordSetupToken(request.getToken())) {
+            throw new RuntimeException("Invalid token.");
+        }
+
+        User user = verificationToken.getUser();
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEnabled(true);
+
+        userRepository.save(user);
+
+        verificationToken.setUsed(true);
+        verificationTokenRepository.save(verificationToken);
+
+        return new ApiResponse<>(true, "Password created successfully.", null);
+    }
+
+    @Override
     public LoginResponse loginUser(LoginRequest request) {
 
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
@@ -81,12 +119,12 @@ public class AuthServiceImpl implements AuthService {
         return LoginResponse.builder()
                 .token(token)
                 .user(UserResponse.builder()
-                    .id(user.getId())
-                    .firstName(user.getFirstName())
-                    .lastName(user.getLastName())
-                    .email(user.getEmail())
-                    .phoneNumber(user.getPhoneNumber())
-                    .build())
+                        .id(user.getId())
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .build())
                 .build();
     }
 

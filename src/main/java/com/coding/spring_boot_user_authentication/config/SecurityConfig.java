@@ -44,7 +44,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register")
+                        .requestMatchers("/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/set-password"
+                        )
                         .permitAll()
                         .anyRequest()
                         .authenticated()

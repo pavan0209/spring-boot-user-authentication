@@ -2,6 +2,7 @@ package com.coding.spring_boot_user_authentication.controller;
 
 import com.coding.spring_boot_user_authentication.dto.request.LoginRequest;
 import com.coding.spring_boot_user_authentication.dto.request.RegisterRequest;
+import com.coding.spring_boot_user_authentication.dto.request.SetPasswordRequest;
 import com.coding.spring_boot_user_authentication.dto.request.UpdateRequest;
 import com.coding.spring_boot_user_authentication.dto.response.ApiResponse;
 import com.coding.spring_boot_user_authentication.dto.response.LoginResponse;
@@ -9,7 +10,6 @@ import com.coding.spring_boot_user_authentication.dto.response.UserResponse;
 import com.coding.spring_boot_user_authentication.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -29,6 +29,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.registerUser(request));
+    }
+
+    @PostMapping("/set-password")
+    public ResponseEntity<ApiResponse<Void>> setPassword(@Valid @RequestBody SetPasswordRequest request) {
+        return ResponseEntity.ok(authService.setPassword(request));
     }
 
     @PostMapping("/login")
