@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,6 +44,15 @@ public class User implements UserDetails {
 
     @Column(nullable = false, length = 15)
     private String phoneNumber;
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    @Builder.Default
+    private List<VerificationToken> verificationTokens = new ArrayList<>();
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -79,6 +89,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return Boolean.TRUE.equals(enabled);
     }
 }
