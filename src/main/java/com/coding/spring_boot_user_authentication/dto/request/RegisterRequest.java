@@ -3,7 +3,6 @@ package com.coding.spring_boot_user_authentication.dto.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,9 +19,6 @@ public class RegisterRequest {
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
     private String email;
-
-    @Size(min = 6, message = "Password must contain at least 6 characters")
-    private String password;
 
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid mobile number")
     private String phoneNumber;
