@@ -1,9 +1,6 @@
 package com.coding.spring_boot_user_authentication.service;
 
-import com.coding.spring_boot_user_authentication.dto.request.LoginRequest;
-import com.coding.spring_boot_user_authentication.dto.request.RegisterRequest;
-import com.coding.spring_boot_user_authentication.dto.request.SetPasswordRequest;
-import com.coding.spring_boot_user_authentication.dto.request.UpdateRequest;
+import com.coding.spring_boot_user_authentication.dto.request.*;
 import com.coding.spring_boot_user_authentication.dto.response.ApiResponse;
 import com.coding.spring_boot_user_authentication.dto.response.LoginResponse;
 import com.coding.spring_boot_user_authentication.dto.response.UserResponse;
@@ -14,6 +11,10 @@ public interface AuthService {
 
     ApiResponse<Void> setPassword(SetPasswordRequest request);
 
+    ApiResponse<Void> forgotPassword(ForgotPasswordRequest request);
+
+    ApiResponse<Void> resetPassword(ResetPasswordRequest request);
+
     LoginResponse loginUser(LoginRequest request);
 
     UserResponse updateUser(UpdateRequest request, Long id);
@@ -21,5 +22,4 @@ public interface AuthService {
     void deleteUser(Long id);
 
     UserResponse getProfile(String email);
-
 }

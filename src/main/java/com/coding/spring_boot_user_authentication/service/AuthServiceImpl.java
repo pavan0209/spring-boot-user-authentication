@@ -1,15 +1,13 @@
 package com.coding.spring_boot_user_authentication.service;
 
-import com.coding.spring_boot_user_authentication.dto.request.LoginRequest;
-import com.coding.spring_boot_user_authentication.dto.request.RegisterRequest;
-import com.coding.spring_boot_user_authentication.dto.request.SetPasswordRequest;
-import com.coding.spring_boot_user_authentication.dto.request.UpdateRequest;
+import com.coding.spring_boot_user_authentication.dto.request.*;
 import com.coding.spring_boot_user_authentication.dto.response.ApiResponse;
 import com.coding.spring_boot_user_authentication.dto.response.LoginResponse;
 import com.coding.spring_boot_user_authentication.dto.response.UserResponse;
 import com.coding.spring_boot_user_authentication.entity.User;
 import com.coding.spring_boot_user_authentication.entity.VerificationToken;
 import com.coding.spring_boot_user_authentication.exception.InvalidCredentialsException;
+import com.coding.spring_boot_user_authentication.exception.InvalidTokenException;
 import com.coding.spring_boot_user_authentication.exception.UserAlreadyExistsException;
 import com.coding.spring_boot_user_authentication.exception.UserNotFoundException;
 import com.coding.spring_boot_user_authentication.repository.UserRepository;
@@ -77,10 +75,40 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
+    public ApiResponse<Void> resetPassword(ResetPasswordRequest request) {
+
+        VerificationToken verificationToken =
+                verificationTokenRepository.findByTokenAndType(request.getToken(), TokenType.PASSWORD_RESET)
+                        .orElseThrow(() -> new RuntimeException("Invalid reset token"));
+
+        if (verificationToken.getUsed()) {
+            throw new InvalidTokenException("This reset password link has already been used.");
+        }
+
+        if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException(("Reset link expired"));
+        }
+
+        if (!jwtService.validatePasswordResetToken(request.getToken())) {
+            throw new InvalidTokenException("Invalid or expired reset password token.");
+        }
+
+        User user = verificationToken.getUser();
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+
+        verificationToken.setUsed(true);
+        verificationTokenRepository.save(verificationToken);
+
+        return new ApiResponse<>(true, "Password updated succesfully", null);
+    }
+
+    @Override
+    @Transactional
     public ApiResponse<Void> setPassword(SetPasswordRequest request) {
 
         VerificationToken verificationToken = verificationTokenRepository.findByToken(request.getToken())
-                .orElseThrow(() -> new RuntimeException("Invalid verification token."));
+                .orElseThrow(() -> new InvalidTokenException("Invalid verification token."));
 
         if (verificationToken.getUsed()) {
             throw new RuntimeException("This link has already been used.");
@@ -91,7 +119,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (!jwtService.validatePasswordSetupToken(request.getToken())) {
-            throw new RuntimeException("Invalid token.");
+            throw new InvalidTokenException("Invalid or expired password setup link.");
         }
 
         User user = verificationToken.getUser();
@@ -104,6 +132,29 @@ public class AuthServiceImpl implements AuthService {
         verificationTokenRepository.save(verificationToken);
 
         return new ApiResponse<>(true, "Password created successfully.", null);
+    }
+
+    @Override
+    @Transactional
+    public ApiResponse<Void> forgotPassword(ForgotPasswordRequest request) {
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        String token = jwtService.generatePasswordResetToken(user);
+
+        VerificationToken verificationToken = VerificationToken.builder()
+                .token(token)
+                .type(TokenType.PASSWORD_RESET)
+                .expiryDate(LocalDateTime.now().plusMinutes(30))
+                .used(false)
+                .user(user)
+                .build();
+
+        verificationTokenRepository.save(verificationToken);
+        emailService.sendResetPasswordEmail(user.getEmail(), user.getFirstName(), token);
+
+        return new ApiResponse<>(true, "Password reset link send successfully", null);
     }
 
     @Override

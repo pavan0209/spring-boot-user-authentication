@@ -1,9 +1,6 @@
 package com.coding.spring_boot_user_authentication.controller;
 
-import com.coding.spring_boot_user_authentication.dto.request.LoginRequest;
-import com.coding.spring_boot_user_authentication.dto.request.RegisterRequest;
-import com.coding.spring_boot_user_authentication.dto.request.SetPasswordRequest;
-import com.coding.spring_boot_user_authentication.dto.request.UpdateRequest;
+import com.coding.spring_boot_user_authentication.dto.request.*;
 import com.coding.spring_boot_user_authentication.dto.response.ApiResponse;
 import com.coding.spring_boot_user_authentication.dto.response.LoginResponse;
 import com.coding.spring_boot_user_authentication.dto.response.UserResponse;
@@ -36,10 +33,20 @@ public class AuthController {
         return ResponseEntity.ok(authService.setPassword(request));
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.ok(authService.forgotPassword(request));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> loginUser(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.loginUser(request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Login successful.", response));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(authService.resetPassword(request));
     }
 
     @PutMapping("/update/{id}")

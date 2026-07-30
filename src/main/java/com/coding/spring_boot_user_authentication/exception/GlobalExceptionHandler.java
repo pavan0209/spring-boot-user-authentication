@@ -55,4 +55,10 @@ public class GlobalExceptionHandler {
         ApiResponse<Object> response = new ApiResponse<>(false, ex.getMessage(), null);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidTokenException(InvalidTokenException ex) {
+        ApiResponse<Object> response = new ApiResponse<>(false, ex.getMessage(), null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }
