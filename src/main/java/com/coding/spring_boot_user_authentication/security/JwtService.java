@@ -70,24 +70,38 @@ public class JwtService {
     }
 
     public String generatePasswordSetupToken(User user) {
+        return generateToken(user, "PASSWORD_SETUP");
+    }
+
+    public String generatePasswordResetToken(User user) {
+        return generateToken(user, "PASSWORD_RESET");
+    }
+
+    private String generateToken(User user, String type) {
         return Jwts.builder()
                 .subject(user.getEmail())
-                .claim("type", "PASSWORD_SETUP")
+                .claim("type", type)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
                 .signWith(getSigningKey())
                 .compact();
     }
 
-    public String extractEmail(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public boolean validatePasswordSetupToken(String token) {
+        return validateToken(token, "PASSWORD_SETUP");
     }
 
-    public boolean validatePasswordSetupToken(String token) {
+    public boolean validatePasswordResetToken(String token) {
+        return validateToken(token, "PASSWORD_RESET");
+    }
+
+    private boolean validateToken(String token, String expectedType) {
         try {
             Claims claims = extractAllClaims(token);
             String type = claims.get("type", String.class);
-            return "PASSWORD_SETUP".equals(type) && !isTokenExpired(token);
+
+            return expectedType.equals(type) && !isTokenExpired(token);
+
         } catch (Exception ex) {
             return false;
         }
