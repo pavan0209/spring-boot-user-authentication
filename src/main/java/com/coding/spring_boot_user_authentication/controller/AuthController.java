@@ -1,9 +1,6 @@
 package com.coding.spring_boot_user_authentication.controller;
 
-import com.coding.spring_boot_user_authentication.dto.request.LoginRequest;
-import com.coding.spring_boot_user_authentication.dto.request.RegisterRequest;
-import com.coding.spring_boot_user_authentication.dto.request.SetPasswordRequest;
-import com.coding.spring_boot_user_authentication.dto.request.UpdateRequest;
+import com.coding.spring_boot_user_authentication.dto.request.*;
 import com.coding.spring_boot_user_authentication.dto.response.ApiResponse;
 import com.coding.spring_boot_user_authentication.dto.response.LoginResponse;
 import com.coding.spring_boot_user_authentication.dto.response.UserResponse;
@@ -34,6 +31,11 @@ public class AuthController {
     @PostMapping("/set-password")
     public ResponseEntity<ApiResponse<Void>> setPassword(@Valid @RequestBody SetPasswordRequest request) {
         return ResponseEntity.ok(authService.setPassword(request));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.ok(authService.forgotPassword(request));
     }
 
     @PostMapping("/login")
