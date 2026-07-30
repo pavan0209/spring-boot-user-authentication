@@ -13,6 +13,8 @@ public interface AuthService {
 
     ApiResponse<Void> forgotPassword(ForgotPasswordRequest request);
 
+    ApiResponse<Void> resetPassword(ResetPasswordRequest request);
+
     LoginResponse loginUser(LoginRequest request);
 
     UserResponse updateUser(UpdateRequest request, Long id);
@@ -20,5 +22,4 @@ public interface AuthService {
     void deleteUser(Long id);
 
     UserResponse getProfile(String email);
-
 }

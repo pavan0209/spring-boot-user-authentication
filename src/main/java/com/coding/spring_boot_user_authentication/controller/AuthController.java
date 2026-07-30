@@ -44,6 +44,11 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Login successful.", response));
     }
 
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(authService.resetPassword(request));
+    }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateRequest request) {
         UserResponse response = authService.updateUser(request, id);
